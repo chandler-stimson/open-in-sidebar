@@ -1,0 +1,80 @@
+:root {
+  --bg: #ccc;
+  --gap: 5px;
+}
+body {
+  font-size: 14px;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
+  color: #4d5156;
+  margin: 0;
+  height: 100vh;
+  display: grid;
+  grid-template-rows: 1fr min-content;
+}
+select,
+button,
+input[type=submit],
+input[type=button] {
+  height: 24px;
+  color: #444;
+  background-image: linear-gradient(rgb(237, 237, 237), rgb(237, 237, 237) 38%, rgb(222, 222, 222));
+  box-shadow: rgba(0, 0, 0, 0.08) 0 1px 0, rgba(255, 255, 255, 0.75) 0 1px 2px inset;
+  text-shadow: rgb(240, 240, 240) 0 1px 0;
+}
+select,
+button,
+textarea,
+input {
+  border: solid 1px rgba(0, 0, 0, 0.25);
+}
+input[type=button]:disabled {
+  opacity: 0.5;
+}
+iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+body.loading iframe {
+  visibility: hidden;
+}
+.footer {
+  display: grid;
+  grid-template-columns: min-content 1fr min-content;
+  border-top: solid 1px var(--bg);
+}
+.footer input[type=search] {
+  border: none;
+  border-left: solid 1px var(--bg);
+  outline: none;
+  text-indent: var(--gap);
+}
+.footer input[type=submit],
+.footer input[type=button] {
+  width: 42px;
+  height: 42px;
+  background-size: 24px;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+#go {
+  background-image: url('images/go.svg');
+}
+#reset {
+  background-image: url('images/reset.svg');
+}
+body:not(.loading) #intro {
+  display: none;
+}
+#intro img {
+  width: 128px;
+}
+body.loading #intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
