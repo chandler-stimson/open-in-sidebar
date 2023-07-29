@@ -2,6 +2,43 @@ chrome.sidePanel.setPanelBehavior({
   openPanelOnActionClick: true
 });
 
+{
+  const once = () => chrome.sidePanel.open && chrome.contextMenus.create({
+    id: 'set-origin-and-open',
+    title: 'Open in Sidebar',
+    contexts: ['link', 'page']
+  }, () => chrome.runtime.lastError);
+  chrome.runtime.onInstalled.addListener(once);
+  chrome.runtime.onStartup.addListener(once);
+}
+
+let href;
+
+chrome.runtime.onMessage.addListener((request, sender, response) => {
+  if (request.method === 'get-href') {
+    response(href);
+    href = '';
+  }
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === 'set-origin-and-open') {
+    href = info.linkUrl || info.pageUrl;
+    chrome.runtime.sendMessage({
+      method: 'send-href',
+      href
+    }, b => {
+      chrome.runtime.lastError;
+      if (b) {
+        href = '';
+      }
+    });
+    chrome.sidePanel.open({
+      windowId: tab.windowId
+    });
+  }
+});
+
 /* FAQs & Feedback */
 {
   const {management, runtime: {onInstalled, setUninstallURL, getManifest}, storage, tabs} = chrome;

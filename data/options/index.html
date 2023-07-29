@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Options Page :: Open in Sidebar</title>
+  <link rel="stylesheet" type="text/css" href="index.css">
+</head>
+<body>
+  <div id="editor">
+    <div>
+      <span>Run the following script on sidebar loaded pages. Read more <a data-href="faq5" target="_blank">here</a></span>.
+    </div>
+    <textarea rows="20" id="user-script" placeholder="e.g.:
+
+console.log(location.href);
+
+if (location.hostname === 'exmaple.com') {
+  console.log('Condition matched');
+}"></textarea>
+  </div>
+  <p>
+    <input type="button" id="support" value="Support Development">
+    <input type="button" id="report" value="Report Bugs">
+  </p>
+  <p>
+    <input type="button" value="Save Options" id="save">
+    <span id="toast"></span>
+  </p>
+  <script type="text/javascript" src="index.js"></script>
+</body>
+</html>

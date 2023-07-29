@@ -1,11 +1,12 @@
 {
   "manifest_version": 3,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "name": "Open in Sidebar",
   "description": "Drop any link to the sidebar for dual-pane access",
   "permissions": [
     "storage",
     "sidePanel",
+    "contextMenus",
     "declarativeNetRequestWithHostAccess"
   ],
   "homepage_url": "https://webextension.org/listing/open-in-sidebar.html",
@@ -13,7 +14,7 @@
     "*://*/*"
   ],
   "side_panel": {
-    "default_path": "data/open/index.html"
+    "default_path": "/data/open/index.html"
   },
   "action": {},
   "icons": {
@@ -33,6 +34,17 @@
     "matches": ["*://*/*"],
     "run_at": "document_start",
     "all_frames": true,
-     "js": ["data/inject/detect.js"]
-  }]
+     "js": ["/data/inject/user-script.js"],
+     "world": "MAIN"
+  }, {
+    "match_about_blank": true,
+    "matches": ["*://*/*"],
+    "run_at": "document_start",
+    "all_frames": true,
+     "js": ["/data/inject/detect.js"]
+  }],
+  "options_ui": {
+    "page": "/data/options/index.html",
+    "open_in_tab": true
+  }
 }

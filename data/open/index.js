@@ -1,6 +1,12 @@
 addEventListener('message', e => {
   if (e.data?.method === 'navigate') {
     document.getElementById('address').value = e.data.href;
+    e.source.postMessage({
+      method: 'navigate-verified'
+    }, '*');
+  }
+  else if (e.data?.method === 'open') {
+    proceed(e.data.href);
   }
 });
 const reset = () => {
@@ -72,14 +78,34 @@ document.getElementById('reset').onclick = () => reset();
 
 document.querySelector('.footer').onsubmit = e => {
   e.preventDefault();
-  proceed(document.getElementById('address').value);
+  let href = document.getElementById('address').value;
+  try {
+    new URL(href);
+  }
+  catch (e) {
+    if (href.toLowerCase().startsWith('http') === false) {
+      href = 'https://' + href;
+    }
+  }
+  proceed(href);
 };
+
+// context-menu request
+chrome.runtime.sendMessage({
+  method: 'get-href'
+}, href => href && proceed(href));
+
+chrome.runtime.onMessage.addListener((request, sender, response) => {
+  if (request.method === 'send-href') {
+    proceed(request.href);
+    response(true);
+  }
+});
 
 chrome.storage.local.get({
   history: true,
   visits: []
 }, prefs => {
-  console.log(prefs);
   if (prefs.history) {
     const href = prefs.visits.at(0);
     if (href) {
@@ -94,4 +120,3 @@ addEventListener('unload', () => chrome.runtime.sendMessage({
 addEventListener('beforeunload', () => chrome.runtime.sendMessage({
   method: 'closed'
 }));
-console.log(112);
