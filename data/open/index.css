@@ -72,6 +72,9 @@ body:not(.loading) #intro {
 #intro img {
   width: 128px;
 }
+#intro p {
+  text-align: center;
+}
 body.loading #intro {
   display: flex;
   flex-direction: column;

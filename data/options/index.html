@@ -7,26 +7,26 @@
   <link rel="stylesheet" type="text/css" href="index.css">
 </head>
 <body>
-  <div id="editor">
-    <div>
-      <span>Run the following script on sidebar loaded pages. Read more <a data-href="faq5" target="_blank">here</a></span>.
-    </div>
-    <textarea rows="20" id="user-script" placeholder="e.g.:
+  <div>
+    <span>Run the following script on sidebar loaded pages. Read more <a data-href="faq5" target="_blank">here</a></span>.
+  </div>
+  <textarea rows="20" id="user-script" placeholder="e.g.:
 
 console.log(location.href);
 
 if (location.hostname === 'exmaple.com') {
   console.log('Condition matched');
 }"></textarea>
-  </div>
-  <p>
+  <div class="tpg">Use the following search engine to search dropped text. <code>"%s"</code> will be replaced with the dropped text.</div>
+  <input type="text" id="search-engine">
+  <div class="tpg">
     <input type="button" id="support" value="Support Development">
     <input type="button" id="report" value="Report Bugs">
-  </p>
-  <p>
+  </div>
+  <div>
     <input type="button" value="Save Options" id="save">
     <span id="toast"></span>
-  </p>
+  </div>
   <script type="text/javascript" src="index.js"></script>
 </body>
 </html>

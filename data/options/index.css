@@ -4,8 +4,10 @@ body {
   background-color: #fff;
   color: #4d5156;
   display: grid;
-  grid-template-rows: 1fr min-content;
-  height: 100vh;
+  grid-template-rows: min-content 1fr min-content min-content min-content min-content;
+  grid-gap: 5px;
+  margin: 10px;
+  height: calc(100vh - 20px);
 }
 select,
 button,
@@ -46,12 +48,6 @@ a:visited {
   color: #07c;
   text-decoration: none;
 }
-
-#editor {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-#editor textarea {
-  flex: 1;
+.tpg {
+  margin-top: 10px;
 }

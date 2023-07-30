@@ -65,14 +65,28 @@ const proceed = href => {
 };
 
 /* drag and drop */
-document.body.addEventListener('dragover', event => {
-  event.preventDefault();
+document.body.addEventListener('dragover', e => {
+  e.preventDefault();
 });
-document.body.addEventListener('drop', event => {
-  event.preventDefault();
+document.body.addEventListener('drop', e => {
+  e.preventDefault();
 
-  const href = event.dataTransfer.getData('text/uri-list');
-  proceed(href);
+  const href = e.dataTransfer.getData('text/uri-list');
+  const query = e.dataTransfer.getData('text/plain');
+
+  if (href) {
+    proceed(href);
+  }
+  else {
+    if (query) {
+      chrome.storage.local.get({
+        'search-engine': 'https://www.google.com/search?q=%s'
+      }, prefs => {
+        const href = prefs['search-engine'].replace('%s', encodeURIComponent(query));
+        proceed(href);
+      });
+    }
+  }
 });
 document.getElementById('reset').onclick = () => reset();
 
