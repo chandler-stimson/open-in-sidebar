@@ -1,53 +1,65 @@
 addEventListener('message', e => {
   if (e.data?.method === 'navigate') {
     document.getElementById('address').value = e.data.href;
-    e.source.postMessage({
-      method: 'navigate-verified'
-    }, '*');
+
+    if (e.source) {
+      e.source.postMessage({
+        method: 'navigate-verified'
+      }, '*');
+    }
   }
   else if (e.data?.method === 'open') {
-    proceed(e.data.href);
+    proceed(e.data.href, false);
   }
 });
-const reset = () => {
-  document.body.classList.add('loading');
-  document.querySelector('iframe').src = '';
-  chrome.declarativeNetRequest.updateSessionRules({
-    removeRuleIds: [1]
-  });
-};
 
-const open = href => {
+const open = (href, forced = false) => {
   const {hostname} = new URL(href);
 
-  document.getElementById('address').value = href;
-
-  chrome.declarativeNetRequest.updateSessionRules({
-    removeRuleIds: [1],
-    addRules: [{
-      'id': 1,
-      'action': {
-        'type': 'modifyHeaders',
-        'responseHeaders': [
-          {'header': 'X-Frame-Options', 'operation': 'remove'}
-        ]
-      },
-      'condition': {
-        'tabIds': [-1],
-        'urlFilter': '||' + hostname
-      }
-    }]
-  }).then(() => {
+  const next = () => {
     document.body.classList.remove('loading');
-    document.querySelector('iframe').src = href;
-  });
+
+    if (forced === true || document.querySelector('iframe').src !== href) {
+      document.querySelector('iframe').src = href;
+    }
+    else {
+      console.info('skipped', href);
+    }
+  };
+
+  if (open.cache !== hostname) {
+    open.cache = hostname;
+    chrome.declarativeNetRequest.updateSessionRules({
+      removeRuleIds: [1],
+      addRules: [{
+        'id': 1,
+        'action': {
+          'type': 'modifyHeaders',
+          'responseHeaders': [
+            {'header': 'X-Frame-Options', 'operation': 'remove'}
+          ]
+        },
+        'condition': {
+          'tabIds': [-1],
+          'urlFilter': '||' + hostname
+        }
+      }]
+    }).then(next);
+  }
+  else {
+    next();
+  }
 };
 
-const proceed = href => {
+const proceed = (href, forced = false) => {
+  if (forced) {
+    document.body.classList.add('loading');
+    document.querySelector('iframe').src = '';
+  }
   if (href) {
     try {
       new URL(href);
-      open(href);
+      setTimeout(() => open(href, forced), 300);
       chrome.storage.local.get({
         visits: [],
         history: true,
@@ -77,7 +89,7 @@ document.body.addEventListener('drop', e => {
   try {
     const o = new URL(href);
     if (o.hostname) {
-      return proceed(href);
+      return proceed(href, true);
     }
   }
   catch (e) {}
@@ -86,49 +98,73 @@ document.body.addEventListener('drop', e => {
       'search-engine': 'https://www.google.com/search?q=%s'
     }, prefs => {
       const href = prefs['search-engine'].replace('%s', encodeURIComponent(query));
-      proceed(href);
+      proceed(href, true);
     });
   }
 });
-document.getElementById('reset').onclick = () => reset();
+document.getElementById('reset').onclick = () => {
+  document.body.classList.add('loading');
+  document.querySelector('iframe').src = '';
+  document.getElementById('address').value = '';
+  open.cache = '';
+  chrome.declarativeNetRequest.updateSessionRules({
+    removeRuleIds: [1]
+  });
+};
+
 
 document.querySelector('.footer').onsubmit = e => {
   e.preventDefault();
   let href = document.getElementById('address').value;
   try {
     new URL(href);
+    proceed(href, true);
   }
   catch (e) {
-    if (href.toLowerCase().startsWith('http') === false) {
-      href = 'https://' + href;
-    }
+    chrome.storage.local.get({
+      'search-engine': 'https://www.google.com/search?q=%s'
+    }, prefs => {
+      if (prefs['search-engine']) {
+        const n = prefs['search-engine'].replace('%s', encodeURIComponent(href));
+        proceed(n, true);
+      }
+      else {
+        if (href.toLowerCase().startsWith('http') === false) {
+          href = 'https://' + href;
+        }
+        proceed(href, true);
+      }
+    });
   }
-  proceed(href);
 };
 
 // context-menu request
 chrome.runtime.sendMessage({
   method: 'get-href'
-}, href => href && proceed(href));
+}, href => href && proceed(href, true));
 
 chrome.runtime.onMessage.addListener((request, sender, response) => {
   if (request.method === 'send-href') {
-    proceed(request.href);
+    proceed(request.href, true);
     response(true);
   }
 });
 
-chrome.storage.local.get({
-  history: true,
-  visits: []
+addEventListener('load', () => chrome.storage.local.get({
+  'history': true,
+  'visits': [],
+  'start-page': ''
 }, prefs => {
-  if (prefs.history) {
+  if (prefs['start-page']) {
+    open(prefs['start-page']);
+  }
+  else if (prefs.history) {
     const href = prefs.visits.at(0);
     if (href) {
       open(href);
     }
   }
-});
+}));
 
 addEventListener('unload', () => chrome.runtime.sendMessage({
   method: 'closed'

@@ -19,6 +19,9 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
     response(href);
     href = '';
   }
+  else if (request.method === 'is-popup') {
+    response(!sender.documentId);
+  }
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {

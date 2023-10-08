@@ -1,14 +1,17 @@
 chrome.storage.local.get({
   'user-script': '',
-  'search-engine': 'https://www.google.com/search?q=%s'
+  'search-engine': 'https://www.google.com/search?q=%s',
+  'start-page': ''
 }, prefs => {
   document.getElementById('user-script').value = prefs['user-script'];
   document.getElementById('search-engine').value = prefs['search-engine'];
+  document.getElementById('start-page').value = prefs['start-page'];
 });
 
 document.getElementById('save').onclick = () => chrome.storage.local.set({
   'user-script': document.getElementById('user-script').value,
-  'search-engine': document.getElementById('search-engine').value
+  'search-engine': document.getElementById('search-engine').value,
+  'start-page': document.getElementById('start-page').value
 }, () => {
   const e = document.getElementById('toast');
   e.textContent = 'Options saved';
