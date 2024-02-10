@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "version": "0.1.3",
+  "version": "0.1.4",
   "name": "Open in Sidebar",
   "description": "Drop any link to the sidebar for dual-pane access",
   "permissions": [
