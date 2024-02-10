@@ -3,13 +3,23 @@ chrome.sidePanel.setPanelBehavior({
 });
 
 {
-  const once = () => chrome.sidePanel.open && chrome.contextMenus.create({
-    id: 'set-origin-and-open',
-    title: 'Open in Sidebar',
-    contexts: ['link', 'page']
-  }, () => chrome.runtime.lastError);
+  const once = () => chrome.sidePanel.open && chrome.storage.local.get({
+    'open-in-sidebar-context': true
+  }, prefs => {
+    chrome.contextMenus.remove('set-origin-and-open', () => {
+      chrome.runtime.lastError;
+      if (prefs['open-in-sidebar-context']) {
+        chrome.contextMenus.create({
+          id: 'set-origin-and-open',
+          title: 'Open in Sidebar',
+          contexts: ['link', 'page']
+        }, () => chrome.runtime.lastError);
+      }
+    });
+  });
   chrome.runtime.onInstalled.addListener(once);
   chrome.runtime.onStartup.addListener(once);
+  chrome.storage.onChanged.addListener(ps => ps['open-in-sidebar-context'] && once());
 }
 
 let href;

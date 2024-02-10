@@ -3,9 +3,9 @@ body {
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
   background-color: #fff;
   color: #4d5156;
-  display: grid;
-  grid-template-rows: min-content 1fr min-content min-content min-content min-content;
-  grid-gap: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
   margin: 10px;
   height: calc(100vh - 20px);
 }
@@ -50,4 +50,13 @@ a:visited {
 }
 .tpg {
   margin-top: 10px;
+}
+.flx {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+#user-script {
+  flex: 1;
 }
