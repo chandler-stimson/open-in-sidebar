@@ -1,167 +1,69 @@
-addEventListener('message', e => {
-  if (e.data?.method === 'navigate') {
-    document.getElementById('address').value = e.data.href;
-
-    if (e.source) {
-      e.source.postMessage({
-        method: 'navigate-verified'
-      }, '*');
-    }
-  }
-  else if (e.data?.method === 'open') {
-    proceed(e.data.href, false);
-  }
-});
-
-const open = (href, forced = false) => {
-  const {hostname} = new URL(href);
-
-  const next = () => {
-    document.body.classList.remove('loading');
-
-    if (forced === true || document.querySelector('iframe').src !== href) {
-      document.querySelector('iframe').src = href;
-    }
-    else {
-      console.info('skipped', href);
-    }
-  };
-
-  if (open.cache !== hostname) {
-    open.cache = hostname;
-    chrome.declarativeNetRequest.updateSessionRules({
-      removeRuleIds: [1],
-      addRules: [{
-        'id': 1,
-        'action': {
-          'type': 'modifyHeaders',
-          'responseHeaders': [
-            {'header': 'X-Frame-Options', 'operation': 'remove'}
-          ]
-        },
-        'condition': {
-          'tabIds': [-1],
-          'urlFilter': '||' + hostname
-        }
-      }]
-    }).then(next);
-  }
-  else {
-    next();
-  }
-};
-
-const proceed = (href, forced = false) => {
-  if (forced) {
-    document.body.classList.add('loading');
-    document.querySelector('iframe').src = '';
-  }
-  if (href) {
-    try {
-      new URL(href);
-      setTimeout(() => open(href, forced), 300);
-      chrome.storage.local.get({
-        visits: [],
-        history: true,
-        size: 5
-      }, prefs => {
-        chrome.storage.local.set({
-          history: prefs.history ? [href, ...prefs.visits].slice(0, prefs.size) : []
-        });
-      });
-    }
-    catch (e) {
-      alert(e.message);
-    }
-  }
-};
-
-/* drag and drop */
-document.body.addEventListener('dragover', e => {
-  e.preventDefault();
-});
-document.body.addEventListener('drop', e => {
-  e.preventDefault();
-
-  const href = e.dataTransfer.getData('text/uri-list');
-  const query = e.dataTransfer.getData('text/plain') || href;
-
-  try {
-    const o = new URL(href);
-    if (o.hostname) {
-      return proceed(href, true);
-    }
-  }
-  catch (e) {}
-  if (query) {
-    chrome.storage.local.get({
-      'search-engine': 'https://www.google.com/search?q=%s'
-    }, prefs => {
-      const href = prefs['search-engine'].replace('%s', encodeURIComponent(query));
-      proceed(href, true);
-    });
-  }
-});
-document.getElementById('reset').onclick = () => {
-  document.body.classList.add('loading');
-  document.querySelector('iframe').src = '';
-  document.getElementById('address').value = '';
-  open.cache = '';
-  chrome.declarativeNetRequest.updateSessionRules({
-    removeRuleIds: [1]
-  });
-};
-
+/* global navigate, tabs, tld */
 
 document.querySelector('.footer').onsubmit = e => {
   e.preventDefault();
   let href = document.getElementById('address').value;
   try {
     new URL(href);
-    proceed(href, true);
+    navigate(undefined, {href});
   }
   catch (e) {
-    chrome.storage.local.get({
-      'search-engine': 'https://www.google.com/search?q=%s'
-    }, prefs => {
-      if (prefs['search-engine']) {
-        const n = prefs['search-engine'].replace('%s', encodeURIComponent(href));
-        proceed(n, true);
-      }
-      else {
-        if (href.toLowerCase().startsWith('http') === false) {
-          href = 'https://' + href;
+    // is this a domain
+    const domain = tld.getDomain(href);
+    if (domain) {
+      return top.navigate(undefined, {
+        href: 'https://' + href
+      });
+    }
+    else {
+      chrome.storage.local.get({
+        'search-engine': 'https://www.google.com/search?q=%s'
+      }, prefs => {
+        if (prefs['search-engine']) {
+          const n = prefs['search-engine'].replace('%s', encodeURIComponent(href));
+          navigate(undefined, {
+            href: n
+          });
         }
-        proceed(href, true);
-      }
-    });
+        else {
+          if (href.toLowerCase().startsWith('http') === false) {
+            href = 'https://' + href;
+          }
+          navigate(undefined, {href});
+        }
+      });
+    }
   }
 };
 
 // context-menu request
 chrome.runtime.sendMessage({
   method: 'get-href'
-}, href => href && proceed(href, true));
+}, href => href && navigate(undefined, {href}));
 
 chrome.runtime.onMessage.addListener((request, sender, response) => {
   if (request.method === 'send-href') {
-    proceed(request.href, true);
+    navigate(undefined, {
+      href: request.href
+    });
     response(true);
   }
 });
 
 addEventListener('load', () => chrome.storage.local.get({
-  'history': true,
   'visits': [],
-  'start-page': ''
+  'start-page': '',
+  'open-last-visited': true
 }, prefs => {
   if (prefs['start-page']) {
-    open(prefs['start-page']);
+    prefs['start-page'].split(/\s*,\s*/).slice(0, 2).forEach((href, n) => navigate(n + 1, {
+      href
+    }));
   }
-  else if (prefs.history) {
+  else if (prefs['open-last-visited']) {
     const href = prefs.visits.at(0);
     if (href) {
-      open(href);
+      navigate(undefined, {href});
     }
   }
 }));
@@ -172,3 +74,56 @@ addEventListener('unload', () => chrome.runtime.sendMessage({
 addEventListener('beforeunload', () => chrome.runtime.sendMessage({
   method: 'closed'
 }));
+
+document.getElementById('forward').onclick = () => {
+  const tabId = tabs.active;
+  if (tabId !== -1) {
+    tabs.prepare(tabId, 'forward').then(href => href && navigate(tabId, {
+      href
+    }));
+  }
+};
+document.getElementById('back').onclick = () => {
+  const tabId = tabs.active;
+  if (tabId !== -1) {
+    tabs.prepare(tabId, 'backward').then(href => href && navigate(tabId, {
+      href
+    }));
+  }
+};
+
+document.getElementById('refresh').onclick = () => {
+  const tabId = tabs.active;
+  if (tabId !== -1) {
+    const method = tabs.get(tabId).state === 'ready' ? 'navigate-reload' : 'navigate-stop';
+    tabs.sendMessage(tabId, {method});
+  }
+};
+
+document.getElementById('reset').onclick = () => {
+  for (let n = 1; n < 5; n += 1) {
+    navigate.terminate(n);
+    tabs.remove(n);
+  }
+
+  // change state
+  tabs.update(1, {
+    state: 'homepage'
+  });
+};
+
+document.getElementById('split').onclick = () => {
+  const splitted = document.querySelectorAll('iframe[src]').length > 1;
+
+  if (splitted) {
+    navigate.terminate(2);
+    tabs.remove(2);
+  }
+  else {
+    // since we are opening a local page, there is no need to use navigate()
+    tabs.update(2, {
+      href: chrome.runtime.getURL('/data/open/blank/index.html'),
+      active: true
+    });
+  }
+};

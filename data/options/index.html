@@ -19,8 +19,20 @@ if (location.hostname === 'exmaple.com') {
 }"></textarea>
   <div class="tpg">Use the following search engine to search dropped text. <code>"%s"</code> will be replaced with the dropped text.</div>
   <input type="text" id="search-engine">
-  <div class="tpg">Automatically load the following page when popup opens</div>
+  <div class="tpg">Automatically open the specified page(s) when the sidebar is activated. Separate multiple pages with commas to view them in split-screen mode.</div>
   <input type="text" id="start-page">
+  <label class="tpg, flx">
+    <input type="checkbox" id="record">
+    <span>Save last 20 visited website</span>
+  </label>
+  <label class="tpg, flx">
+    <input type="checkbox" id="open-last-visited">
+    <span>Open last visited website when sidebar opens</span>
+  </label>
+  <label class="tpg, flx">
+    <input type="checkbox" id="display-last-visited">
+    <span>Display recent visits on homepage</span>
+  </label>
   <label class="tpg, flx">
     <input type="checkbox" id="open-in-sidebar-context">
     <span>Show "Open in Sidebar" context menu for links</span>

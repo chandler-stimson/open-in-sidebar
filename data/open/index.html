@@ -4,18 +4,39 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" type="text/css" href="index.css">
+  <title>Sidebar Browser</title>
 </head>
-<body class="loading">
+<body state="homepage" frame="1">
   <div id="intro">
     <img src="images/link.svg">
     <p>Drag and drop a link to navigate or a text to search</p>
   </div>
+  <div id="history"></div>
+  <iframe></iframe>
+  <iframe></iframe>
+  <iframe></iframe>
   <iframe></iframe>
   <form class="footer">
-    <input type="button" value="" id="reset">
-    <input type="search" id="address" placeholder="Enter an address or query and then press the Enter key.">
-    <input type="submit" value="" id="go">
+    <div id="actions">
+      <input type="button" value="" id="back">
+      <input type="button" value="" id="forward">
+      <input type="button" value="" id="refresh">
+      <input type="button" value="" id="reset">
+    </div>
+    <div class="search-container">
+      <span id="active">1</span>
+      <input type="search" id="address" placeholder="Enter an address or query and then press Enter">
+    </div>
+    <input type="submit" hidden>
+    <div id="extensions">
+      <input type="button" value="" id="split">
+    </div>
   </form>
+  <script type="text/javascript" src="tabs.js"></script>
+  <script type="text/javascript" src="navigate.js"></script>
   <script type="text/javascript" src="index.js"></script>
+  <script type="text/javascript" src="tld.js"></script>
+  <script type="text/javascript" src="drop.js"></script>
+  <script type="text/javascript" src="history.js"></script>
 </body>
 </html>

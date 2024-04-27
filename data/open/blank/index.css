@@ -1,0 +1,9 @@
+body {
+  font-size: 14px;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
+  color: #4d5156;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  height: 100vh;
+}

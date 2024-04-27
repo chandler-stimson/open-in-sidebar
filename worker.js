@@ -2,6 +2,10 @@ chrome.sidePanel.setPanelBehavior({
   openPanelOnActionClick: true
 });
 
+// chrome.tabs.create({
+//   url: 'data/open/index.html'
+// });
+
 {
   const once = () => chrome.sidePanel.open && chrome.storage.local.get({
     'open-in-sidebar-context': true
@@ -30,7 +34,19 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
     href = '';
   }
   else if (request.method === 'is-popup') {
-    response(!sender.documentId);
+    if (
+      (sender.documentId && sender.tab.url.includes(chrome.runtime.id)) || // extension page
+      !sender.documentId // sidebar
+    ) {
+      response({
+        permit: true
+      });
+    }
+    else {
+      response({
+        permit: false
+      });
+    }
   }
 });
 

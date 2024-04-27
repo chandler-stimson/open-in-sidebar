@@ -6,8 +6,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 5px;
-  margin: 10px;
   height: calc(100vh - 20px);
+  width: min(100% - 2rem, 70rem);
+  margin-inline: auto;
 }
 select,
 button,

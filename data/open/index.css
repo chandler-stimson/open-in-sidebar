@@ -1,6 +1,11 @@
 :root {
-  --bg: #ccc;
+  --bg: #fff;
+  --bg-alt: #ccc;
   --gap: 5px;
+  --hover: #f2f2f2;
+  --search-bg: #ebeff8;
+  --search-fg: #474747;
+  --active: #0060d3;
 }
 body {
   font-size: 14px;
@@ -8,24 +13,9 @@ body {
   color: #4d5156;
   margin: 0;
   height: 100vh;
-  display: grid;
-  grid-template-rows: 1fr min-content;
-}
-select,
-button,
-input[type=submit],
-input[type=button] {
-  height: 24px;
-  color: #444;
-  background-image: linear-gradient(rgb(237, 237, 237), rgb(237, 237, 237) 38%, rgb(222, 222, 222));
-  box-shadow: rgba(0, 0, 0, 0.08) 0 1px 0, rgba(255, 255, 255, 0.75) 0 1px 2px inset;
-  text-shadow: rgb(240, 240, 240) 0 1px 0;
-}
-select,
-button,
-textarea,
-input {
-  border: solid 1px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg);
 }
 input[type=button]:disabled {
   opacity: 0.5;
@@ -35,39 +25,110 @@ iframe {
   height: 100%;
   border: none;
 }
-body.loading iframe {
-  visibility: hidden;
+iframe:not(:first-of-type) {
+  border-top: solid 3px var(--bg-alt);
+}
+iframe:not([src]) {
+  display: none;
+}
+body[state=homepage] iframe {
+  display: none;
 }
 .footer {
   display: grid;
   grid-template-columns: min-content 1fr min-content;
-  border-top: solid 1px var(--bg);
+  border-top: solid 1px var(--bg-alt);
+  padding-inline-end: var(--gap);
+  padding: var(--gap);
+  grid-gap: var(--gap);
+}
+.search-container {
+  border-radius: 20px;
+  color: var(--search-fg);
+  background-color: var(--search-bg);
+  display: grid;
+  grid-template-columns:min-content 1fr;
+  align-items: center;
+}
+.search-container:focus-within {
+  outline: solid 2px var(--active);
 }
 .footer input[type=search] {
   border: none;
-  border-left: solid 1px var(--bg);
+  padding-inline: calc(var(--gap) * 2);
   outline: none;
-  text-indent: var(--gap);
+  background-color: transparent;
+  overflow: hidden;
 }
-.footer input[type=submit],
+.footer input[type=search]:hover {
+  background-color: transparent;
+}
 .footer input[type=button] {
-  width: 42px;
-  height: 42px;
-  background-size: 24px;
   background-repeat: no-repeat;
   background-position: center center;
   background-color: transparent;
   border: none;
-  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  background-size: 16px;
+  border-radius: 50%;
+  transition: background-color 300ms ease-in-out;
 }
-#go {
-  background-image: url('images/go.svg');
+.footer input:hover {
+  background-color: var(--hover);
+}
+#actions,
+#extensions {
+  width: max-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 #reset {
-  background-image: url('images/reset.svg');
+  background-image: url('images/home.svg');
 }
-body:not(.loading) #intro {
-  display: none;
+#back {
+  background-image: url('images/back.svg');
+}
+#forward {
+  background-image: url('images/back.svg');
+  rotate: 180deg;
+}
+#refresh {
+  background-image: url('images/refresh.svg');
+}
+body[state="loading"] #refresh {
+  background-image: url('images/stop.svg');
+}
+#split {
+  background-image: url('images/split.svg');
+}
+body[state=homepage] #back,
+body[state=homepage] #forward,
+body[state=homepage] #refresh,
+body[state=homepage] #split {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+#active {
+  font-size: 80%;
+  background-color: var(--bg);
+  border-radius: 50%;
+  width: 22px;
+  aspect-ratio: 1 / 1;
+  justify-self: center;
+  display: grid;
+  place-items: center;
+  margin-inline-start: var(--gap);
+}
+
+#intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
 }
 #intro img {
   width: 128px;
@@ -75,9 +136,18 @@ body:not(.loading) #intro {
 #intro p {
   text-align: center;
 }
-body.loading #intro {
+#history {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: var(--gap);
+  padding: calc(2 * var(--gap)) var(--gap);
+}
+#history img {
+  cursor: pointer;
+  width: 16px;
+}
+body:not([state="homepage"]) #intro,
+body:not([state="homepage"]) #history {
+  display: none;
 }

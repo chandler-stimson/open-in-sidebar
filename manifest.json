@@ -1,13 +1,15 @@
 {
   "manifest_version": 3,
-  "version": "0.1.4",
+  "version": "0.1.5",
   "name": "Open in Sidebar",
   "description": "Drop any link to the sidebar for dual-pane access",
   "permissions": [
     "storage",
     "sidePanel",
     "contextMenus",
-    "declarativeNetRequestWithHostAccess"
+    "declarativeNetRequestWithHostAccess",
+    "webRequest",
+    "favicon"
   ],
   "homepage_url": "https://webextension.org/listing/open-in-sidebar.html",
   "host_permissions": [
