@@ -111,3 +111,10 @@
 
   self.navigate = navigate;
 }
+
+// chrome.webRequest.onHeadersReceived.addListener(d => {
+//   console.log(d);
+// }, {
+//   urls: ['*://*/*']
+// });
+// console.log(chrome.webRequest.onBeforeRequest.addListener);
